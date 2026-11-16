@@ -52,6 +52,21 @@ public class ProgramTests
         Assert.Contains("Token validation failed:", result.StandardOutput);
     }
 
+    [Fact]
+    public async Task Program_UsesMachineName_WhenAudienceIsNotConfigured()
+    {
+        string audience = Environment.MachineName;
+        using RSA rsa = TestableTokenService.CreateRsaKeyPair();
+        string token = TestableTokenService.CreateAndSignToken(
+            rsa.ExportRSAPrivateKeyPem(),
+            "SFTP2GO Master Server",
+            audience);
+
+        ProcessResult result = await RunProgramAsync(token, rsa.ExportRSAPublicKeyPem(), null);
+
+        Assert.Equal(0, result.ExitCode);
+    }
+
     private static async Task<ProcessResult> RunProgramAsync(
         string input,
         string? publicKey,

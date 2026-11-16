@@ -8,7 +8,8 @@ if (string.IsNullOrEmpty(token))
     return;
 }
 
-string audience = Environment.GetEnvironmentVariable("PAM_AUDIENCE") ?? string.Empty;
+string audience = Environment.GetEnvironmentVariable("PAM_AUDIENCE")
+    ?? Environment.MachineName;
 
 /* PAM
  * Pam expects a return code
