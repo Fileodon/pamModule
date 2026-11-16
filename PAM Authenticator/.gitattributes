@@ -1,0 +1,5 @@
+# Set the default behavior, in case people don't have core.autocrlf set.
+* text=auto
+
+# Don't convert .sh files to Windows line endings
+*.sh text eol=lf
