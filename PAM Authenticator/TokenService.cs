@@ -19,7 +19,7 @@ public class TokenService
         TokenValidationParameters validationParameters = new()
         {
             ValidateIssuer = true,
-            ValidIssuer = "SFTP2GO Master Server",
+            ValidIssuer = "Fileodon Master Server",
             ValidateAudience = true,
             ValidAudience = audience,
             ValidateLifetime = true,
