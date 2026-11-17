@@ -8,3 +8,7 @@
 * `sudo chmod +x /opt/pam-auth/PAM_Authenticator`
 * `sudo ./setup-pam-auth.sh`
 * `sudo systemctl reload ssh`
+
+Logs are written to `logs/pam-authenticator-YYYYMMDD.log` relative to the
+published application directory. Set `PAM_LOG_PATH` to override the log file
+path.

@@ -1,6 +1,7 @@
 using System.Security.Cryptography;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
+using Serilog;
 
 namespace PAM_Authenticator;
 
@@ -38,12 +39,14 @@ public class TokenService
             }
             else
             {
+                Log.Warning(principal.Exception, "Token validation failed.");
                 Console.WriteLine($"Token validation failed: {principal.Exception?.Message}");
                 return false;
             }
         }
         catch (SecurityTokenException ex)
         {
+            Log.Warning(ex, "Token validation failed.");
             Console.WriteLine($"Token validation failed: {ex.Message}");
             return false;
         }
