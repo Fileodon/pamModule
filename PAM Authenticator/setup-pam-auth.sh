@@ -12,12 +12,18 @@
 #   TARGET_USER   user that must authenticate with a JWT (default: Fileodon)
 #   PAM_FILE      PAM service file   (default: /etc/pam.d/sshd)
 #   SSHD_FILE     sshd config file   (default: /etc/ssh/sshd_config)
+#   PAM_PUBLIC_KEY_URL  public-key API endpoint
+#                       (default: https://api.dev.fileodon.dev/api/organization/sftpconnection/pam/publickey)
+#   PAM_PUBLIC_KEY_PATH  key destination (default: <AUTH_BIN directory>/public.pem)
+#   PAM_PUBLIC_KEY_AUTH_HEADER  optional HTTP header for API authentication
 
 set -euo pipefail
 
 TARGET_USER="${TARGET_USER:-Fileodon}"
 PAM_FILE="${PAM_FILE:-/etc/pam.d/sshd}"
 SSHD_FILE="${SSHD_FILE:-/etc/ssh/sshd_config}"
+PAM_PUBLIC_KEY_URL="${PAM_PUBLIC_KEY_URL:-https://api.dev.fileodon.dev/api/organization/sftpconnection/pam/publickey}"
+PAM_PUBLIC_KEY_AUTH_HEADER="${PAM_PUBLIC_KEY_AUTH_HEADER:-}"
 BEGIN_MARK="# BEGIN PAM_Authenticator (${TARGET_USER})"
 END_MARK="# END PAM_Authenticator (${TARGET_USER})"
 STAMP="$(date +%Y%m%d-%H%M%S)"
@@ -79,6 +85,37 @@ strip_block "$SSHD_FILE" "$SSHD_NEW"
 
 if [[ $REMOVE -eq 0 ]]; then
     [[ -x "$AUTH_BIN" ]] || echo "Warning: $AUTH_BIN does not exist or is not executable (yet)." >&2
+
+    AUTH_DIR="$(dirname "$AUTH_BIN")"
+    PUBLIC_KEY_PATH="${PAM_PUBLIC_KEY_PATH:-$AUTH_DIR/public.pem}"
+    PUBLIC_KEY_DIR="$(dirname "$PUBLIC_KEY_PATH")"
+
+    mkdir -p "$PUBLIC_KEY_DIR"
+    PUBLIC_KEY_TMP="$WORK/public.pem"
+    if command -v curl >/dev/null; then
+        CURL_AUTH_ARGS=()
+        [[ -z "$PAM_PUBLIC_KEY_AUTH_HEADER" ]] || CURL_AUTH_ARGS+=(--header "$PAM_PUBLIC_KEY_AUTH_HEADER")
+        curl --fail --silent --show-error --location \
+            --connect-timeout 10 --max-time 60 --retry 3 \
+            "${CURL_AUTH_ARGS[@]}" --output "$PUBLIC_KEY_TMP" "$PAM_PUBLIC_KEY_URL" \
+            || die "could not fetch the PAM public key from $PAM_PUBLIC_KEY_URL"
+    elif command -v wget >/dev/null; then
+        WGET_AUTH_ARGS=()
+        [[ -z "$PAM_PUBLIC_KEY_AUTH_HEADER" ]] || WGET_AUTH_ARGS+=(--header="$PAM_PUBLIC_KEY_AUTH_HEADER")
+        wget --quiet --timeout=60 --tries=3 \
+            "${WGET_AUTH_ARGS[@]}" --output-document="$PUBLIC_KEY_TMP" "$PAM_PUBLIC_KEY_URL" \
+            || die "could not fetch the PAM public key from $PAM_PUBLIC_KEY_URL"
+    else
+        die "curl or wget is required to fetch the PAM public key."
+    fi
+
+    [[ -s "$PUBLIC_KEY_TMP" ]] || die "PAM public-key endpoint returned an empty response."
+    grep -Eq '-----BEGIN ([A-Z ]*)PUBLIC KEY-----' "$PUBLIC_KEY_TMP" \
+        || die "PAM public-key endpoint did not return a PEM public key."
+
+    chmod 0644 "$PUBLIC_KEY_TMP"
+    mv -f "$PUBLIC_KEY_TMP" "$PUBLIC_KEY_PATH"
+    echo "Installed PAM public key: $PUBLIC_KEY_PATH"
 
     PAM_BLOCK="$WORK/pam.block"
     SSHD_BLOCK="$WORK/sshd.block"
