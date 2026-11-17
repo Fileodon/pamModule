@@ -29,11 +29,14 @@ try
     {
         Log.Warning("PAM authentication request did not include a token.");
         Console.WriteLine("No PAM token provided.");
+        exitCode = 1;
         return;
     }
 
     string audience = Environment.GetEnvironmentVariable("PAM_AUDIENCE")
         ?? Environment.MachineName;
+
+    Log.Information("Our PAM audience is {Audience}.", audience);
 
     string keyPath = Path.Combine(AppContext.BaseDirectory, "public.pem");
     /* PAM
