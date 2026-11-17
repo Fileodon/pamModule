@@ -13,9 +13,9 @@ public class TokenService
         ArgumentException.ThrowIfNullOrEmpty(publicKey);
         ArgumentException.ThrowIfNullOrEmpty(audience);
 
-        RSA rsa = RSA.Create();
+        using ECDsa ecdsa = ECDsa.Create();
 
-        rsa.ImportFromPem(publicKey);
+        ecdsa.ImportFromPem(publicKey);
 
         TokenValidationParameters validationParameters = new()
         {
@@ -25,7 +25,7 @@ public class TokenService
             ValidAudience = audience,
             ValidateLifetime = true,
             ValidateIssuerSigningKey = true,
-            IssuerSigningKey = new RsaSecurityKey(rsa),
+            IssuerSigningKey = new ECDsaSecurityKey(ecdsa),
         };
 
         JsonWebTokenHandler handler = new();

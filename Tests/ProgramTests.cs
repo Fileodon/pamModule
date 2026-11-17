@@ -18,16 +18,16 @@ public class ProgramTests
     [Fact]
     public async Task Program_ReturnsSuccess_WhenTokenIsValid()
     {
-        using RSA rsa = TestableTokenService.CreateRsaKeyPair();
+        using ECDsa ecdsa = TestableTokenService.CreateEcdsaKeyPair();
         const string audience = "Server A";
         string token = TestableTokenService.CreateAndSignToken(
-            rsa.ExportRSAPrivateKeyPem(),
-            "SFTP2GO Master Server",
+            ecdsa.ExportECPrivateKeyPem(),
+            "Fileodon Master Server",
             audience);
 
         ProcessResult result = await RunProgramAsync(
             token,
-            rsa.ExportRSAPublicKeyPem(),
+            ecdsa.ExportSubjectPublicKeyInfoPem(),
             audience);
 
         Assert.Equal(0, result.ExitCode);
@@ -36,16 +36,16 @@ public class ProgramTests
     [Fact]
     public async Task Program_ReturnsFailure_WhenTokenIsInvalid()
     {
-        using RSA rsa = TestableTokenService.CreateRsaKeyPair();
+        using ECDsa ecdsa = TestableTokenService.CreateEcdsaKeyPair();
         const string audience = "Server A";
         string token = TestableTokenService.CreateAndSignToken(
-            rsa.ExportRSAPrivateKeyPem(),
-            "SFTP2GO Master Server",
+            ecdsa.ExportECPrivateKeyPem(),
+            "Fileodon Master Server",
             audience);
 
         ProcessResult result = await RunProgramAsync(
             token,
-            rsa.ExportRSAPublicKeyPem(),
+            ecdsa.ExportSubjectPublicKeyInfoPem(),
             "Different audience");
 
         Assert.Equal(1, result.ExitCode);
@@ -56,13 +56,13 @@ public class ProgramTests
     public async Task Program_UsesMachineName_WhenAudienceIsNotConfigured()
     {
         string audience = Environment.MachineName;
-        using RSA rsa = TestableTokenService.CreateRsaKeyPair();
+        using ECDsa ecdsa = TestableTokenService.CreateEcdsaKeyPair();
         string token = TestableTokenService.CreateAndSignToken(
-            rsa.ExportRSAPrivateKeyPem(),
-            "SFTP2GO Master Server",
+            ecdsa.ExportECPrivateKeyPem(),
+            "Fileodon Master Server",
             audience);
 
-        ProcessResult result = await RunProgramAsync(token, rsa.ExportRSAPublicKeyPem(), null);
+        ProcessResult result = await RunProgramAsync(token, ecdsa.ExportSubjectPublicKeyInfoPem(), null);
 
         Assert.Equal(0, result.ExitCode);
     }
@@ -95,6 +95,11 @@ public class ProgramTests
             if (audience is not null)
             {
                 startInfo.Environment["PAM_AUDIENCE"] = audience;
+            }
+
+            if (publicKey is not null)
+            {
+                startInfo.Environment["PAM_PUBLIC_KEY_PATH"] = Path.Combine(workingDirectory, "public.pem");
             }
 
             using Process process = Process.Start(startInfo)!;

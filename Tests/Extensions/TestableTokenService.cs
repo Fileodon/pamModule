@@ -14,12 +14,12 @@ public class TestableTokenService : TokenService
         ArgumentException.ThrowIfNullOrEmpty(issuer);
         ArgumentException.ThrowIfNullOrEmpty(audience);
 
-        RSA rsa = RSA.Create();
+        using ECDsa ecdsa = ECDsa.Create();
 
-        rsa.ImportFromPem(privateKey);
+        ecdsa.ImportFromPem(privateKey);
 
-        RsaSecurityKey rsaSecurityKey = new(rsa);
-        SigningCredentials signingCredentials = new(rsaSecurityKey, SecurityAlgorithms.RsaSha512);
+        ECDsaSecurityKey ecdsaSecurityKey = new(ecdsa);
+        SigningCredentials signingCredentials = new(ecdsaSecurityKey, SecurityAlgorithms.EcdsaSha256);
 
         JwtSecurityToken token = new(
             issuer: issuer,
@@ -31,8 +31,8 @@ public class TestableTokenService : TokenService
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
 
-    public static RSA CreateRsaKeyPair()
+    public static ECDsa CreateEcdsaKeyPair()
     {
-        return RSA.Create(4096);
+        return ECDsa.Create(ECCurve.NamedCurves.nistP256);
     }
 }

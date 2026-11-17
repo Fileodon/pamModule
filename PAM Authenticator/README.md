@@ -11,4 +11,4 @@
 
 Logs are written to `logs/pam-authenticator-YYYYMMDD.log` relative to the
 published application directory. Set `PAM_LOG_PATH` to override the log file
-path.
+path. Set `PAM_PUBLIC_KEY_PATH` to override the default `public.pem` path.

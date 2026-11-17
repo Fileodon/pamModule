@@ -8,16 +8,16 @@ public class TokenServiceTestsTest
     [Fact]
     public async Task Verify_ReturnsTrue_ForValidToken()
     {
-        using RSA rsa = TestableTokenService.CreateRsaKeyPair();
+        using ECDsa ecdsa = TestableTokenService.CreateEcdsaKeyPair();
 
         string token = TestableTokenService.CreateAndSignToken(
-            rsa.ExportRSAPrivateKeyPem(),
-            "SFTP2GO Master Server",
+            ecdsa.ExportECPrivateKeyPem(),
+            "Fileodon Master Server",
             "Server A");
 
         bool result = await PAM_Authenticator.TokenService.Verify(
             token,
-            rsa.ExportRSAPublicKeyPem(),
+            ecdsa.ExportSubjectPublicKeyInfoPem(),
             "Server A");
 
         Assert.True(result);
@@ -26,16 +26,16 @@ public class TokenServiceTestsTest
     [Fact]
     public async Task Verify_ReturnsFalse_ForInvalidIssuer()
     {
-        using RSA rsa = TestableTokenService.CreateRsaKeyPair();
+        using ECDsa ecdsa = TestableTokenService.CreateEcdsaKeyPair();
 
         string token = TestableTokenService.CreateAndSignToken(
-            rsa.ExportRSAPrivateKeyPem(),
+            ecdsa.ExportECPrivateKeyPem(),
             "Invalid Issuer",
             "Server A");
 
         bool result = await PAM_Authenticator.TokenService.Verify(
             token,
-            rsa.ExportRSAPublicKeyPem(),
+            ecdsa.ExportSubjectPublicKeyInfoPem(),
             "Server A");
 
         Assert.False(result);
@@ -44,16 +44,16 @@ public class TokenServiceTestsTest
     [Fact]
     public async Task Verify_ReturnsFalse_ForInvalidAudience()
     {
-        using RSA rsa = TestableTokenService.CreateRsaKeyPair();
+        using ECDsa ecdsa = TestableTokenService.CreateEcdsaKeyPair();
 
         string token = TestableTokenService.CreateAndSignToken(
-            rsa.ExportRSAPrivateKeyPem(),
-            "SFTP2GO Master Server",
+            ecdsa.ExportECPrivateKeyPem(),
+            "Fileodon Master Server",
             "Server A");
 
         bool result = await PAM_Authenticator.TokenService.Verify(
             token,
-            rsa.ExportRSAPublicKeyPem(),
+            ecdsa.ExportSubjectPublicKeyInfoPem(),
             "Server B");
 
         Assert.False(result);
@@ -62,17 +62,17 @@ public class TokenServiceTestsTest
     [Fact]
     public async Task Verify_ReturnsFalse_WhenSignatureWasCreatedWithDifferentKey()
     {
-        using RSA signingRsa = TestableTokenService.CreateRsaKeyPair();
-        using RSA validationRsa = TestableTokenService.CreateRsaKeyPair();
+        using ECDsa signingEcdsa = TestableTokenService.CreateEcdsaKeyPair();
+        using ECDsa validationEcdsa = TestableTokenService.CreateEcdsaKeyPair();
 
         string token = TestableTokenService.CreateAndSignToken(
-            signingRsa.ExportRSAPrivateKeyPem(),
-            "SFTP2GO Master Server",
+            signingEcdsa.ExportECPrivateKeyPem(),
+            "Fileodon Master Server",
             "Server A");
 
         bool result = await PAM_Authenticator.TokenService.Verify(
             token,
-            validationRsa.ExportRSAPublicKeyPem(),
+            validationEcdsa.ExportSubjectPublicKeyInfoPem(),
             "Server A");
 
         Assert.False(result);
@@ -81,11 +81,11 @@ public class TokenServiceTestsTest
     [Fact]
     public async Task Verify_ReturnsFalse_ForMalformedToken()
     {
-        using RSA rsa = TestableTokenService.CreateRsaKeyPair();
+        using ECDsa ecdsa = TestableTokenService.CreateEcdsaKeyPair();
 
         bool result = await PAM_Authenticator.TokenService.Verify(
             "not-a-valid-token",
-            rsa.ExportRSAPublicKeyPem(),
+            ecdsa.ExportSubjectPublicKeyInfoPem(),
             "Server A");
 
         Assert.False(result);
@@ -94,24 +94,24 @@ public class TokenServiceTestsTest
     [Fact]
     public async Task Verify_ThrowsForNullToken()
     {
-        using RSA rsa = TestableTokenService.CreateRsaKeyPair();
+        using ECDsa ecdsa = TestableTokenService.CreateEcdsaKeyPair();
 
         await Assert.ThrowsAsync<ArgumentNullException>(() =>
             PAM_Authenticator.TokenService.Verify(
                 null!,
-                rsa.ExportRSAPublicKeyPem(),
+                ecdsa.ExportSubjectPublicKeyInfoPem(),
                 "Server A"));
     }
 
     [Fact]
     public async Task Verify_ThrowsForEmptyToken()
     {
-        using RSA rsa = TestableTokenService.CreateRsaKeyPair();
+        using ECDsa ecdsa = TestableTokenService.CreateEcdsaKeyPair();
 
         await Assert.ThrowsAsync<ArgumentException>(() =>
             PAM_Authenticator.TokenService.Verify(
                 string.Empty,
-                rsa.ExportRSAPublicKeyPem(),
+                ecdsa.ExportSubjectPublicKeyInfoPem(),
                 "Server A"));
     }
 
@@ -128,12 +128,12 @@ public class TokenServiceTestsTest
     [Fact]
     public async Task Verify_ThrowsForNullAudience()
     {
-        using RSA rsa = TestableTokenService.CreateRsaKeyPair();
+        using ECDsa ecdsa = TestableTokenService.CreateEcdsaKeyPair();
 
         await Assert.ThrowsAsync<ArgumentNullException>(() =>
             PAM_Authenticator.TokenService.Verify(
                 "token",
-                rsa.ExportRSAPublicKeyPem(),
+                ecdsa.ExportSubjectPublicKeyInfoPem(),
                 null!));
     }
 

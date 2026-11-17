@@ -40,7 +40,8 @@ try
 
     Log.Information("Our PAM audience is {Audience}.", audience);
 
-    string keyPath = Path.Combine(AppContext.BaseDirectory, "public.pem");
+    string keyPath = Environment.GetEnvironmentVariable("PAM_PUBLIC_KEY_PATH")
+        ?? Path.Combine(AppContext.BaseDirectory, "public.pem");
     /* PAM
      * Pam expects a return code
      * 0 = success
