@@ -33,6 +33,8 @@ try
         return;
     }
 
+    Log.Information("Received token of length {Length}", token.Length);
+
     string audience = Environment.GetEnvironmentVariable("PAM_AUDIENCE")
         ?? Environment.MachineName;
 
