@@ -9,7 +9,7 @@
 #   sudo ./setup-pam-auth.sh --remove [--reload]           roll back
 #
 # Optional env vars:
-#   TARGET_USER   user that must authenticate with a JWT (default: Fileodon)
+#   TARGET_USER   user that must authenticate with a JWT (default: fileodon)
 #   PAM_FILE      PAM service file   (default: /etc/pam.d/sshd)
 #   SSHD_FILE     sshd config file   (default: /etc/ssh/sshd_config)
 #   PAM_PUBLIC_KEY_URL  public-key API endpoint
@@ -19,7 +19,7 @@
 
 set -euo pipefail
 
-TARGET_USER="${TARGET_USER:-Fileodon}"
+TARGET_USER="${TARGET_USER:-fileodon}"
 PAM_FILE="${PAM_FILE:-/etc/pam.d/sshd}"
 SSHD_FILE="${SSHD_FILE:-/etc/ssh/sshd_config}"
 PAM_PUBLIC_KEY_URL="${PAM_PUBLIC_KEY_URL:-https://api.dev.fileodon.dev/api/organization/sftpconnection/pam/publickey}"
