@@ -13,7 +13,7 @@
 #   PAM_FILE      PAM service file   (default: /etc/pam.d/sshd)
 #   SSHD_FILE     sshd config file   (default: /etc/ssh/sshd_config)
 #   PAM_PUBLIC_KEY_URL  public-key API endpoint
-#                       (default: https://api.dev.fileodon.dev/api/organization/sftpconnection/pam/publickey)
+#                       (default: https://api.fileodon.dev/api/organization/sftpconnection/pam/publickey)
 #   PAM_PUBLIC_KEY_PATH  key destination (default: <AUTH_BIN directory>/public.pem)
 #   PAM_PUBLIC_KEY_AUTH_HEADER  optional HTTP header for API authentication
 
@@ -22,7 +22,7 @@ set -euo pipefail
 TARGET_USER="${TARGET_USER:-fileodon}"
 PAM_FILE="${PAM_FILE:-/etc/pam.d/sshd}"
 SSHD_FILE="${SSHD_FILE:-/etc/ssh/sshd_config}"
-PAM_PUBLIC_KEY_URL="${PAM_PUBLIC_KEY_URL:-https://api.dev.fileodon.dev/api/organization/sftpconnection/pam/publickey}"
+PAM_PUBLIC_KEY_URL="${PAM_PUBLIC_KEY_URL:-https://api.fileodon.dev/api/organization/sftpconnection/pam/publickey}"
 PAM_PUBLIC_KEY_AUTH_HEADER="${PAM_PUBLIC_KEY_AUTH_HEADER:-}"
 BEGIN_MARK="# BEGIN PAM_Authenticator (${TARGET_USER})"
 END_MARK="# END PAM_Authenticator (${TARGET_USER})"
