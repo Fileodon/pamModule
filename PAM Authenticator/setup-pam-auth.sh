@@ -110,7 +110,7 @@ if [[ $REMOVE -eq 0 ]]; then
     fi
 
     [[ -s "$PUBLIC_KEY_TMP" ]] || die "PAM public-key endpoint returned an empty response."
-    grep -Eq '-----BEGIN ([A-Z ]*)PUBLIC KEY-----' "$PUBLIC_KEY_TMP" \
+    grep -Eq -- '-----BEGIN ([A-Z ]*)PUBLIC KEY-----' "$PUBLIC_KEY_TMP" \
         || die "PAM public-key endpoint did not return a PEM public key."
 
     chmod 0644 "$PUBLIC_KEY_TMP"
