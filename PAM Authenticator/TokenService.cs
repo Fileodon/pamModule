@@ -21,7 +21,7 @@ public class TokenService
         {
             ValidateIssuer = true,
             ValidIssuer = "Fileodon Master Server",
-            ValidateAudience = true,
+            ValidateAudience = false,
             ValidAudience = audience,
             ValidateLifetime = true,
             ValidateIssuerSigningKey = true,
